@@ -1,0 +1,6 @@
+# Minimal Supabase CLI config — unspecified sections use CLI defaults.
+project_id = "called-it"
+
+[auth]
+# Guest-first: anonymous sessions are the default entry point.
+enable_anonymous_sign_ins = true
