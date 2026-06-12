@@ -1,0 +1,29 @@
+# Replaces Vercel Pro cron: calls the sync route every 15 minutes.
+# Requires:
+#   - repo secret  CRON_SECRET — must match the deployment's CRON_SECRET env var
+#   - repo variable APP_URL    — deployment base URL, e.g. https://calledit.vercel.app
+# The job is skipped until APP_URL is configured, so this workflow stays green
+# before the first deploy. Note: GitHub may delay scheduled runs by a few
+# minutes under load; the sync is idempotent, so that's harmless.
+
+name: Sync fixtures
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: ${{ vars.APP_URL != '' }}
+    steps:
+      - name: Call /api/cron/sync-fixtures
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ vars.APP_URL }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 120 \
+            --retry 2 --retry-delay 10 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$APP_URL/api/cron/sync-fixtures"

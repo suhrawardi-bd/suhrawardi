@@ -46,9 +46,12 @@ npm run dev
 
 ### Fixture sync
 
-`vercel.json` schedules `GET /api/cron/sync-fixtures` every 15 minutes
-(requires Vercel Pro for that frequency; on Hobby, trigger it from a GitHub
-Actions schedule or pg_cron instead). Trigger manually:
+`.github/workflows/sync-fixtures.yml` calls `GET /api/cron/sync-fixtures`
+every 15 minutes (no Vercel Pro cron needed). Configure once in the repo
+settings: secret `CRON_SECRET` (matching the deployment's env var) and
+variable `APP_URL` (the deployment base URL) — the job skips itself until
+`APP_URL` is set. Trigger manually via the workflow's "Run workflow" button,
+or locally:
 
 ```bash
 curl -i -H "Authorization: Bearer $CRON_SECRET" \
